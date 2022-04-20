@@ -1,10 +1,38 @@
 package tinysearch
 
-import "container/list"
+import (
+	"container/list"
+	"fmt"
+	"sort"
+	"strconv"
+	"strings"
+	"unicode/utf8"
+)
 
 type Index struct {
 	Dictionary     map[string]PostingList
 	TotalDocsCount int
+}
+
+func (idx Index) Strinig() string {
+	var padding int
+	keys := make([]string, 0, len(idx.Dictionary))
+	for k := range idx.Dictionary {
+		l := utf8.RuneCountInString(k)
+		if padding < l {
+			padding = l
+		}
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	strs := make([]string, len(keys))
+	format := " [%-" + strconv.Itoa(padding) + "s] -> %s"
+	for i, k := range keys {
+		if PostingList, ok := idx.Dictionary[k]; ok {
+			strs[i] = fmt.Sprintf(format, k, PostingList.String())
+		}
+	}
+	return fmt.Sprint("total documents : %v\ndictionarry:\n%v\n", idx.TotalDocsCount, strings.Join(strs, "\n"))
 }
 
 func NewIndex() *Index {
@@ -26,6 +54,10 @@ type Posting struct {
 
 func NewPosting(docID DocumemtID, positions ...int) *Posting {
 	return &Posting{docID, positions, len(positions)}
+}
+
+func (p Posting) String() string {
+	return fmt.Sprintf("(%v, %v, %v)", p.DocID, p.TermFrequency, p.Positions)
 }
 
 type PostingList struct {
@@ -64,4 +96,12 @@ func (pl PostingList) Add(new *Posting) {
 	}
 	last.Positions = append(last.Positions, new.Positions...)
 	last.TermFrequency++
+}
+
+func (pl PostingList) String() string {
+	str := make([]string, 0, pl.Len())
+	for e := pl.Front(); e != nil; e = e.Next() {
+		str = append(str, e.Value.(*Posting).String())
+	}
+	return strings.Join(str, "=>")
 }
