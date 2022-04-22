@@ -32,7 +32,7 @@ func (idx Index) Strinig() string {
 			strs[i] = fmt.Sprintf(format, k, PostingList.String())
 		}
 	}
-	return fmt.Sprint("total documents : %v\ndictionarry:\n%v\n", idx.TotalDocsCount, strings.Join(strs, "\n"))
+	return fmt.Sprintf("total documents : %v\ndictionarry:\n%v\n", idx.TotalDocsCount, strings.Join(strs, "\n"))
 }
 
 func NewIndex() *Index {

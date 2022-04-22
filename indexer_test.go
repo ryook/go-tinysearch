@@ -10,9 +10,9 @@ func TestUpdate(t *testing.T) {
 
 	collection := []string{
 		"Do you quarrel, sir?",
-		"Quarrel sir! mo, sir!",
+		"Quarrel sir! no, sir!",
 		"No better",
-		"well, sir",
+		"Well, sir",
 	}
 
 	indexer := NewIndexer(NewTokenizer())
@@ -30,7 +30,7 @@ func TestUpdate(t *testing.T) {
 				NewPosting(0, 0)),
 			"no":      NewPostingsList(NewPosting(1, 2), NewPosting(2, 0)),
 			"quarrel": NewPostingsList(NewPosting(0, 2), NewPosting(1, 0)),
-			"air":     NewPostingsList(NewPosting(0, 3), NewPosting(1, 1, 3), NewPosting(3, 1)),
+			"sir":     NewPostingsList(NewPosting(0, 3), NewPosting(1, 1, 3), NewPosting(3, 1)),
 			"well":    NewPostingsList(NewPosting(3, 0)),
 			"you":     NewPostingsList(NewPosting(0, 1)),
 		},
