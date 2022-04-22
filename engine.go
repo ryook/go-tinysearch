@@ -43,3 +43,8 @@ func (e *Engine) AddDocument(title string, reader io.Reader) error {
 	e.indexer.update(id, reader)
 	return nil
 }
+
+func (e *Engine) Flush() error {
+	writer := NewIndexWriter(e.indexDir)
+	return writer.Flush(e.indexer.index)
+}
