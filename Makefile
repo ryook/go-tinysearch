@@ -12,9 +12,14 @@ deps:
 .PHONY: devel-deps
 devel-deps:
 	GO11MODULE=off go get ${u} \
-	golang.org/x/tools/cmd/goiimports
+	golang.org/x/tools/cmd/goimports
 
 .PHONY: test
 test: deps devel-deps
 		docker-compose up -d
-		goiimports -l -w .
+		# goimports -l -w .
+		go test -v -cover ./...
+
+.PHONY: install
+install: deps
+	go install ./cmd/tinysearch
