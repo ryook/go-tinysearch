@@ -17,8 +17,7 @@ devel-deps:
 .PHONY: test
 test: deps devel-deps
 		docker-compose up -d
-		# goimports -l -w .
-		go test -v -cover ./...
+		go test -v -cover 
 
 .PHONY: install
 install: deps
