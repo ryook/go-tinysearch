@@ -3,6 +3,7 @@ package tinysearch
 import (
 	"bufio"
 	"bytes"
+	"strings"
 	"unicode"
 )
 
@@ -28,4 +29,14 @@ func (t *Tokenizer) SplitFunc(data []byte, atEOF bool) (advance int, token []byt
 		}
 	}
 	return
+}
+
+func (t *Tokenizer) TextToWordSequence(text string) []string {
+	scanner := bufio.NewScanner(strings.NewReader(text))
+	scanner.Split(t.SplitFunc)
+	var result []string
+	for scanner.Scan() {
+		result = append(result, scanner.Text())
+	}
+	return result
 }

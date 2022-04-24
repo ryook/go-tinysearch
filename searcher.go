@@ -36,6 +36,8 @@ func NewSearcher(path string) *Searcher {
 
 func (s *Searcher) SearchTopK(query []string, k int) *TopDocs {
 	results := s.search(query)
+	println("aa")
+	println(results)
 
 	sort.Slice(results, func(i, j int) bool {
 		return results[i].score > results[j].score
@@ -45,6 +47,9 @@ func (s *Searcher) SearchTopK(query []string, k int) *TopDocs {
 	if len(results) > k {
 		results = results[:k]
 	}
+
+	println(total)
+	println(results)
 
 	return &TopDocs{
 		totalHits: total,
@@ -70,7 +75,7 @@ func (s *Searcher) search(query []string) []*ScoreDoc {
 				return docs
 			}
 
-			if cursor.DocId() != c.DocId {
+			if cursor.DocId() != c.DocId() {
 				nextDocId = cursor.DocId()
 				break
 			}

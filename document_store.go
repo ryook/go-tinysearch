@@ -22,3 +22,11 @@ func (ds *DocumentStore) save(title string) (DocumemtID, error) {
 	id, err := result.LastInsertId()
 	return DocumemtID(id), err
 }
+
+func (ds *DocumentStore) fetchTitle(docID DocumemtID) (string, error) {
+	query := "SELECT document_title FROM documents WHERE document_id = ?"
+	row := ds.db.QueryRow(query, docID)
+	var title string
+	err := row.Scan(&title)
+	return title, err
+}

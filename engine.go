@@ -48,3 +48,27 @@ func (e *Engine) Flush() error {
 	writer := NewIndexWriter(e.indexDir)
 	return writer.Flush(e.indexer.index)
 }
+
+func (e *Engine) Search(query string, k int) ([]*SearchResult, error) {
+	terms := e.tokenzer.TextToWordSequence(query)
+
+	docs := NewSearcher(e.indexDir).SearchTopK(terms, k)
+
+	results := make([]*SearchResult, 0, k)
+	for _, result := range docs.scoreDocs {
+		title, err := e.documentStore.fetchTitle(result.docID)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, &SearchResult{
+			result.docID, result.score, title,
+		})
+	}
+	return results, nil
+}
+
+type SearchResult struct {
+	DocID DocumemtID
+	Score float64
+	Title string
+}

@@ -73,7 +73,7 @@ func (r *IndexReader) totalDocCount() int {
 	if err != nil {
 		return 0
 	}
-	count, err := strconv.Atoi(striing(bytes))
+	count, err := strconv.Atoi(string(bytes))
 	if err != nil {
 		return 0
 	}

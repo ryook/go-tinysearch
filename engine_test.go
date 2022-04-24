@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -100,6 +101,27 @@ func TestCreateIndex(t *testing.T) {
 				}
 			}()
 		}
+	}
+
+}
+
+func TestSearch(t *testing.T) {
+
+	engine := NewSearchEngine(testDB)
+
+	query := "Quarrel, sir."
+	actual, err := engine.Search(query, 5)
+	if err != nil {
+		t.Fatalf("failed SearchTopK: %v", err)
+	}
+
+	expected := []*SearchResult{
+		{3, 1.754887502163469, "test3"},
+		{1, 1.1699250014423126, "test1"},
+	}
+
+	for !reflect.DeepEqual(actual, expected) {
+		t.Fatalf("\ngot:\n%v\nwant:\n%v\n", actual, expected)
 	}
 
 }
