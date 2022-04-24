@@ -105,3 +105,44 @@ func (pl PostingList) String() string {
 	}
 	return strings.Join(str, "=>")
 }
+
+type Cursor struct {
+	PostingList *PostingList
+	current     *list.Element
+}
+
+func (pl PostingList) OpenCursor() *Cursor {
+	return &Cursor{
+		PostingList: &pl,
+		current:     pl.Front(),
+	}
+}
+
+func (c *Cursor) Next() {
+	c.current = c.current.Next()
+}
+
+func (c *Cursor) NextDoc(id DocumemtID) {
+	for !c.Empty() && c.DocId() < id {
+		c.Next()
+	}
+}
+
+func (c *Cursor) Empty() bool {
+	if c.current == nil {
+		return true
+	}
+	return false
+}
+
+func (c *Cursor) Posting() *Posting {
+	return c.current.Value.(*Posting)
+}
+
+func (c *Cursor) DocId() DocumemtID {
+	return c.current.Value.(*Posting).DocID
+}
+
+func (c *Cursor) String() string {
+	return fmt.Sprint(c.Posting())
+}

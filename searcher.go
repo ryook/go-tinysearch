@@ -2,6 +2,7 @@ package tinysearch
 
 import (
 	"fmt"
+	"math"
 	"sort"
 )
 
@@ -92,7 +93,7 @@ func (s *Searcher) search(query []string) []*ScoreDoc {
 }
 
 func (s *Searcher) openCursors(query []string) int {
-	postings := a.indexReader.postingsList(query)
+	postings := s.indexReader.postingsList(query)
 	if len(postings) == 0 {
 		return 0
 	}
@@ -107,4 +108,26 @@ func (s *Searcher) openCursors(query []string) int {
 	}
 	s.cursors = cursors
 	return len(cursors)
+}
+
+func (s *Searcher) calcScore() float64 {
+	var score float64
+	for i := 0; i < len(s.cursors); i++ {
+		termFreq := s.cursors[i].Posting().TermFrequency
+		docCount := s.cursors[i].PostingList.Len()
+		totalDocCount := s.indexReader.totalDocCount()
+		score += calcTF(termFreq) * calIDF(totalDocCount, docCount)
+	}
+	return score
+}
+
+func calcTF(termCount int) float64 {
+	if termCount <= 0 {
+		return 0
+	}
+	return math.Log2(float64(termCount)) + 1
+}
+
+func calIDF(N, df int) float64 {
+	return math.Log2(float64(N) / float64(df))
 }
