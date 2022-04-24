@@ -50,3 +50,61 @@ func (s *Searcher) SearchTopK(query []string, k int) *TopDocs {
 		scoreDocs: results,
 	}
 }
+
+func (s *Searcher) search(query []string) []*ScoreDoc {
+	if s.openCursors(query) == 0 {
+		return []*ScoreDoc{}
+	}
+
+	c := s.cursors[0]
+	cursors := s.cursors[1:]
+
+	docs := make([]*ScoreDoc, 0)
+
+	for !c.Empty() {
+		var nextDocId DocumemtID
+
+		for _, cursor := range cursors {
+			if cursor.NextDoc(c.DocId()); cursor.Empty() {
+				return docs
+			}
+
+			if cursor.DocId() != c.DocId {
+				nextDocId = cursor.DocId()
+				break
+			}
+		}
+
+		if nextDocId > 0 {
+			if c.NextDoc(nextDocId); c.Empty() {
+				return docs
+			}
+		} else {
+			docs = append(docs, &ScoreDoc{
+				docID: c.DocId(),
+				score: s.calcScore(),
+			})
+			c.Next()
+		}
+	}
+
+	return docs
+}
+
+func (s *Searcher) openCursors(query []string) int {
+	postings := a.indexReader.postingsList(query)
+	if len(postings) == 0 {
+		return 0
+	}
+
+	sort.Slice(postings, func(i, j int) bool {
+		return postings[i].Len() < postings[j].Len()
+	})
+
+	cursors := make([]*Cursor, len(postings))
+	for i, postingList := range postings {
+		cursors[i] = postingList.OpenCursor()
+	}
+	s.cursors = cursors
+	return len(cursors)
+}
